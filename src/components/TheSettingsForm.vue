@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { useStore } from "vuex";
+import { User } from "../store/modules/auth";
+import { ref } from "vue";
+
 import FormSection from "./FormSection.vue";
 import WSwitch from "./WSwitch.vue";
 import WInput from "./WInput.vue";
@@ -8,22 +11,106 @@ import WCheckbox from "./WCheckbox.vue";
 import WRadio from "./WRadio.vue";
 import WTooltip from "./WTooltip.vue";
 
-const SIPSwitch = ref<Boolean>(false);
-const companyInput = ref<String>("");
-const phoneInput = ref<String>("");
+const store = useStore();
+
 const loginInput = ref<String>("");
-const firstnameInput = ref<String>("");
-const lastnameInput = ref<String>("");
-const timezoneSelect = ref<String>("Москва");
-const autoupdateCheck = ref<Boolean>(false);
-const notificationRadio = ref<String>("off");
-const telegramShowInput = ref<Boolean>(false);
-const emailShowInput = ref<Boolean>(false);
-const telegramInput = ref<String>("12345678");
-const emailInput = ref<String>("foo@bar.bas");
+const passwordInput = ref<String>("");
+
+const timezones = [
+  "Калининград",
+  "Москва",
+  "Самара",
+  "Екатеринбург",
+  "Омск",
+  "Красноярск",
+  "Иркутск",
+  "Якутск",
+  "Владивосток",
+  "Магадан",
+  "Камчатка",
+];
+
+const SIPSwitch = ref<Boolean>(false);
+const companyFormInput = ref<String>("");
+const phoneFormInput = ref<String>("");
+const loginFormInput = ref<String>("");
+const firstnameFormInput = ref<String>("");
+const lastnameFormInput = ref<String>("");
+const timezoneFormSelect = ref<String>("Москва");
+const autoupdateFormCheck = ref<Boolean>(false);
+const notificationFormRadio = ref<number>(-1);
+const telegramShowFormInput = ref<Boolean>(false);
+const emailShowFormInput = ref<Boolean>(false);
+const telegramFormInput = ref<String>("");
+const emailFormInput = ref<String>("");
+
+const userData = ref<User>();
+
+const login = async () => {
+  await store.dispatch("user/login", {
+    // login: "79146072045",
+    // password: "6876631166",
+    login: loginInput.value,
+    password: passwordInput.value,
+  });
+  getUserData();
+};
+
+const getUserData = async () => {
+  await store.dispatch("user/getUserData");
+  const user = store.getters["user/user"];
+  userData.value = user;
+
+  SIPSwitch.value = user.calltype == "1" ? true : false;
+  companyFormInput.value = user.companyname;
+  loginFormInput.value = user.login;
+  phoneFormInput.value = user.phone;
+  firstnameFormInput.value = user.fname;
+  lastnameFormInput.value = user.lname;
+  emailFormInput.value = user.email;
+  telegramFormInput.value = user.telegramChat;
+  notificationFormRadio.value = user.sendMethod;
+  timezoneFormSelect.value = timezones[Number(user.timezone) + 1];
+  autoupdateFormCheck.value = !user.locklentaupdate;
+};
+
+const updateUserData = async () => {
+  // Отправляется только email. при желании можно и другие данные модифицировать
+  await store.dispatch("user/updateUserData", { email: emailFormInput.value });
+  getUserData();
+};
 </script>
 
 <template>
+  <div v-if="userData !== undefined">
+    Loged in!
+    <button
+      type="button"
+      class="inline-block px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
+      @click="getUserData"
+    >
+      fetch data
+    </button>
+  </div>
+  <div v-else class="px-5 py-5 flex flex-col gap-2 sm:flex-row">
+    <label class="label">Логин</label>
+    <WInput
+      :value="loginInput"
+      @update:model-value="(newVal : string) => { loginInput = newVal }"
+    />
+    <label class="label">Пароль</label>
+    <WInput
+      :value="passwordInput"
+      @update:model-value="(newVal : string) => passwordInput = newVal"
+    />
+    <button
+      type="button"
+      class="inline-block px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
+      @click="login"
+    >
+      Войти
+    </button>
+  </div>
   <div class="form">
     <div class="form__heading">
       <h1 class="p-5 text-3xl font-semibold">Настройки</h1>
@@ -32,7 +119,10 @@ const emailInput = ref<String>("foo@bar.bas");
       <FormSection>
         <template #heading>
           <label class="" for="SIPToggle">Звонок через SIP</label>
-          <WSwitch :value="SIPSwitch" />
+          <WSwitch
+            :value="SIPSwitch"
+            @update:value="(newVal : boolean) => SIPSwitch = newVal"
+          />
         </template>
         <template #content>
           <p class="text-gray-500 font-light">
@@ -47,28 +137,28 @@ const emailInput = ref<String>("foo@bar.bas");
         <template #heading>Учётная запись</template>
         <template #content>
           <WInput
-            :value="companyInput"
-            @update:model-value="(newVal : string) => { companyInput = newVal }"
+            :value="companyFormInput"
+            @update:model-value="(newVal : string) => { companyFormInput = newVal }"
             label="Компания"
           />
           <WInput
-            :value="loginInput"
-            @update:model-value="(newVal : string) => loginInput = newVal"
+            :value="loginFormInput"
+            @update:model-value="(newVal : string) => loginFormInput = newVal"
             label="Логин"
           />
           <WInput
-            :value="phoneInput"
-            @update:model-value="(newVal : string) => phoneInput = newVal"
+            :value="phoneFormInput"
+            @update:model-value="(newVal : string) => phoneFormInput = newVal"
             label="Номер телефона"
           />
           <WInput
-            :value="firstnameInput"
-            @update:model-value="(newVal : string) => firstnameInput = newVal"
+            :value="firstnameFormInput"
+            @update:model-value="(newVal : string) => firstnameFormInput = newVal"
             label="Имя"
           />
           <WInput
-            :value="lastnameInput"
-            @update:model-value="(newVal : string) => lastnameInput = newVal"
+            :value="lastnameFormInput"
+            @update:model-value="(newVal : string) => lastnameFormInput = newVal"
             label="Фамилия"
           />
         </template>
@@ -84,29 +174,33 @@ const emailInput = ref<String>("foo@bar.bas");
           <div class="flex">
             <ul class="border-gray-200 w-full sm:w-max">
               <li class="py-2 border-b border-gray-200 rounded-t-lg">
-                <WRadio value="off" label="Выкл" v-model="notificationRadio" />
+                <WRadio
+                  value="-1"
+                  label="Выкл"
+                  v-model="notificationFormRadio"
+                />
               </li>
               <li
                 class="py-2 w-full border-b border-gray-200 inline-flex justify-between"
               >
                 <WRadio
-                  value="email"
+                  value="2"
                   label="E-mail"
-                  v-model="notificationRadio"
+                  v-model="notificationFormRadio"
                 />
                 <span class="flex items-center">
-                  <p v-if="!emailShowInput" class="text-sm">
-                    {{ emailInput }}
+                  <p v-if="!emailShowFormInput" class="text-sm">
+                    {{ emailFormInput }}
                   </p>
                   <WInput
                     v-else
-                    :value="emailInput"
-                    @update:model-value="(newVal : string) => { emailInput = newVal }"
+                    :value="emailFormInput"
+                    @update:model-value="(newVal : string) => { emailFormInput = newVal }"
                   />
                   <button
-                    v-if="!emailShowInput"
+                    v-if="!emailShowFormInput"
                     class="ml-5"
-                    @click="emailShowInput = true"
+                    @click="emailShowFormInput = true"
                   >
                     <!-- pencil icon -->
                     <svg width="20" height="20" viewBox="0 0 256 256">
@@ -123,23 +217,23 @@ const emailInput = ref<String>("foo@bar.bas");
                 class="py-2 w-full border-gray-200 inline-flex justify-between"
               >
                 <WRadio
-                  value="telegram"
+                  value="1"
                   label="Telegram ID"
-                  v-model="notificationRadio"
+                  v-model="notificationFormRadio"
                 />
                 <span class="flex items-center">
-                  <p v-if="!telegramShowInput" class="text-sm">
-                    {{ telegramInput }}
+                  <p v-if="!telegramShowFormInput" class="text-sm">
+                    {{ telegramFormInput }}
                   </p>
                   <WInput
                     v-else
-                    :value="telegramInput"
-                    @update:model-value="(newVal : string) => { telegramInput = newVal }"
+                    :value="telegramFormInput"
+                    @update:model-value="(newVal : string) => { telegramFormInput = newVal }"
                   />
                   <button
-                    v-if="!telegramShowInput"
+                    v-if="!telegramShowFormInput"
                     class="ml-5"
-                    @click="telegramShowInput = true"
+                    @click="telegramShowFormInput = true"
                   >
                     <!-- pencil icon -->
                     <svg width="20" height="20" viewBox="0 0 256 256">
@@ -162,27 +256,15 @@ const emailInput = ref<String>("foo@bar.bas");
           <WSelect
             class=""
             label="Часовой пояс"
-            :value="timezoneSelect"
-            @update:model-value="(newVal : string) => timezoneSelect = newVal"
-            :options="[
-              'Калининград',
-              'Москва',
-              'Самара',
-              'Екатеринбург',
-              'Омск',
-              'Красноярск',
-              'Иркутск',
-              'Якутск',
-              'Владивосток',
-              'Магадан',
-              'Камчатка',
-            ]"
+            :value="timezoneFormSelect"
+            @update:model-value="(newVal : string) => timezoneFormSelect = newVal"
+            :options="timezones"
           />
           <div class="flex flex-row sm:justify-between">
             <WCheckbox
               label="Автоматически переходить к новым объявлениям"
-              :value="autoupdateCheck"
-              @update:model-value="(newVal : boolean) => autoupdateCheck = newVal"
+              :value="autoupdateFormCheck"
+              @update:value="(newVal : boolean) => autoupdateFormCheck = newVal"
             />
             <WTooltip
               text="Лента будет автоматически обновляться 1 раз в 3 секунды"
@@ -203,6 +285,7 @@ const emailInput = ref<String>("foo@bar.bas");
           <button
             type="button"
             class="inline-block px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
+            @click="updateUserData"
           >
             Сохранить
           </button>

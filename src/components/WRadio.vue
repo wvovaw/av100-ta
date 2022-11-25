@@ -8,11 +8,11 @@ const props = defineProps({
     default: false,
   },
   modelValue: {
-    type: [String],
+    type: [String, Number, Boolean],
     required: true,
   },
   value: {
-    type: [String],
+    type: [String, Number, Boolean],
     required: true,
   },
 });
@@ -33,6 +33,7 @@ const id = "wradio-" + generateUID(8);
       @input="
         $emit('update:modelValue', ($event.target as HTMLInputElement).value)
       "
+      v-bind="$attrs"
     />
     <label
       v-if="label"

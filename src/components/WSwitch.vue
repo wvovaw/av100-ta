@@ -6,9 +6,9 @@ const props = defineProps({
     type: [String, Boolean],
     default: false,
   },
-  modelValue: {
-    type: Boolean,
-    default: false,
+  value: {
+    type: [Boolean],
+    required: true,
   },
 });
 const emit = defineEmits(["update:modelValue"]);
@@ -23,9 +23,13 @@ const id = "wswitch-" + generateUID(8);
       type="checkbox"
       role="switch"
       :id="id"
-      :value="modelValue"
+      :value="value"
+      :checked="value"
       @input="
-        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+        $emit(
+          'update:modelValue',
+          Boolean(($event.target as HTMLInputElement).value)
+        )
       "
       v-bind="$attrs"
     />
