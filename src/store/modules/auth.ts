@@ -66,10 +66,10 @@ export default {
           },
           {
             params: {
-              api_key: "8bcfb6e1-4fa8-4fae-872c-a435bbdbe8d9",
+              api_key: import.meta.env.VITE_API_KEY,
             },
             headers: {
-              "X-API-KEY": "8bcfb6e1-4fa8-4fae-872c-a435bbdbe8d9",
+              "X-API-KEY": import.meta.env.VITE_API_KEY,
               "X-DEVICE-OS": "linux",
             },
           }
@@ -86,10 +86,10 @@ export default {
           "https://api.av100.ru/v3/user/" + String(ctx.state.id),
           {
             params: {
-              api_key: "8bcfb6e1-4fa8-4fae-872c-a435bbdbe8d9",
+              api_key: import.meta.env.VITE_API_KEY,
             },
             headers: {
-              "X-API-KEY": "8bcfb6e1-4fa8-4fae-872c-a435bbdbe8d9",
+              "X-API-KEY": import.meta.env.VITE_API_KEY,
               "X-USER-TOKEN": ctx.state.token,
               "X-DEVICE-OS": "linux",
             },
@@ -109,10 +109,10 @@ export default {
         payload,
         {
           params: {
-            api_key: "8bcfb6e1-4fa8-4fae-872c-a435bbdbe8d9",
+            api_key: import.meta.env.VITE_API_KEY,
           },
           headers: {
-            "X-API-KEY": "8bcfb6e1-4fa8-4fae-872c-a435bbdbe8d9",
+            "X-API-KEY": import.meta.env.VITE_API_KEY,
             "X-USER-TOKEN": ctx.state.token,
             "X-DEVICE-OS": "linux",
           },

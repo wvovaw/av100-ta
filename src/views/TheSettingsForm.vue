@@ -3,19 +3,15 @@ import { useStore } from "vuex";
 import { User } from "../store/modules/auth";
 import { ref } from "vue";
 
-import FormSection from "./FormSection.vue";
-import WSwitch from "./WSwitch.vue";
-import WInput from "./WInput.vue";
-import WSelect from "./WSelect.vue";
-import WCheckbox from "./WCheckbox.vue";
-import WRadio from "./WRadio.vue";
-import WTooltip from "./WTooltip.vue";
+import FormSection from "../components/FormSection.vue";
+import WSwitch from "../components/WSwitch.vue";
+import WInput from "../components/WInput.vue";
+import WSelect from "../components/WSelect.vue";
+import WCheckbox from "../components/WCheckbox.vue";
+import WRadio from "../components/WRadio.vue";
+import WTooltip from "../components/WTooltip.vue";
 
-const store = useStore();
-
-const loginInput = ref<String>("");
-const passwordInput = ref<String>("");
-
+/* Constants */
 const timezones = [
   "Калининград",
   "Москва",
@@ -29,6 +25,10 @@ const timezones = [
   "Магадан",
   "Камчатка",
 ];
+
+/* Data */
+const loginInput = ref<String>("");
+const passwordInput = ref<String>("");
 
 const SIPSwitch = ref<Boolean>(false);
 const companyFormInput = ref<String>("");
@@ -46,10 +46,11 @@ const emailFormInput = ref<String>("");
 
 const userData = ref<User>();
 
+const store = useStore();
+
+/* Methods */
 const login = async () => {
   await store.dispatch("user/login", {
-    // login: "79146072045",
-    // password: "6876631166",
     login: loginInput.value,
     password: passwordInput.value,
   });
