@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   {
-    path: "/normal",
+    path: "/",
     name: "normal",
     component: () => import("../views/TheSettingsForm.vue"),
   },

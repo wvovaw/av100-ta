@@ -11,9 +11,9 @@ onBeforeMount(() => {
 <template>
   <div class="links text-center mx-5">
     <router-link
-      to="/normal"
+      to="/"
       class="text-gray-500 transition duration-300 ease-in-out m-4"
-      :class="{ 'text-green-500': $route.path == '/normal' }"
+      :class="{ 'text-green-500': $route.path == '/' }"
       >Нормальный порядок</router-link
     >
     <router-link

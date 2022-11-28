@@ -9,7 +9,7 @@ const props = defineProps({
   },
   modelValue: {
     type: [String, Number, Boolean],
-    required: true,
+    default: undefined,
   },
   value: {
     type: [String, Number, Boolean],

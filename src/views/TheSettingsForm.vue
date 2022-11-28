@@ -54,19 +54,19 @@ const login = async () => {
     login: loginInput.value,
     password: passwordInput.value,
   });
-  displayUserData();
+  fetchUserData();
 };
 
 const displayUserData = async () => {
   const user = store.getters["user/user"];
   userData.value = user;
 
+  firstnameFormInput.value = user.fname;
+  lastnameFormInput.value = user.lname;
   SIPSwitch.value = user.calltype == "1" ? true : false;
   companyFormInput.value = user.companyname;
   loginFormInput.value = user.login;
   phoneFormInput.value = user.phone;
-  firstnameFormInput.value = user.fname;
-  lastnameFormInput.value = user.lname;
   emailFormInput.value = user.email;
   telegramFormInput.value = user.telegramChat;
   notificationFormRadio.value = user.sendMethod;
@@ -75,8 +75,20 @@ const displayUserData = async () => {
 };
 
 const updateUserData = async () => {
-  // Отправляется только email. при желании можно и другие данные модифицировать
-  await store.dispatch("user/updateUserData", { email: emailFormInput.value });
+  await store.dispatch("user/updateUserData", {
+    email: emailFormInput.value,
+    telegramChat: telegramFormInput.value,
+    phone: phoneFormInput.value,
+    sendMethod: notificationFormRadio.value,
+    timezone: timezones.indexOf(String(timezoneFormSelect.value)) - 1,
+    calltype: SIPSwitch.value,
+    locklentaupdate: autoupdateFormCheck.value,
+    // Не модифицируются и на оригинальной странице, но, в теории, можно и так
+    // login: loginFormInput.value,
+    // lname: lastnameFormInput.value,
+    // companyname: companyFormInput.value,
+    // fname: firstnameFormInput.value,
+  });
   await fetchUserData();
 };
 
@@ -91,7 +103,7 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-  <div v-if="store.getters['user/user']">
+  <div v-if="store.getters['user/token'] != ''">
     Loged in!
     <button
       type="button"
@@ -129,7 +141,7 @@ onBeforeMount(async () => {
         <template #heading>
           <label class="" for="SIPToggle">Звонок через SIP</label>
           <WSwitch
-            :value="SIPSwitch"
+            :value="Boolean(SIPSwitch)"
             @update:value="(newVal : boolean) => SIPSwitch = newVal"
           />
         </template>
@@ -272,7 +284,7 @@ onBeforeMount(async () => {
           <div class="flex flex-row sm:justify-between">
             <WCheckbox
               label="Автоматически переходить к новым объявлениям"
-              :value="autoupdateFormCheck"
+              :value="Boolean(autoupdateFormCheck)"
               @update:value="(newVal : boolean) => autoupdateFormCheck = newVal"
             />
             <WTooltip
