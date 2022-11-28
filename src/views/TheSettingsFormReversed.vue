@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useStore } from "vuex";
 import { User } from "../store/modules/auth";
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 
 import FormSection from "../components/FormSection.vue";
 import WSwitch from "../components/WSwitch.vue";
@@ -54,11 +54,10 @@ const login = async () => {
     login: loginInput.value,
     password: passwordInput.value,
   });
-  getUserData();
+  displayUserData();
 };
 
-const getUserData = async () => {
-  await store.dispatch("user/getUserData");
+const displayUserData = async () => {
   const user = store.getters["user/user"];
   userData.value = user;
 
@@ -78,17 +77,26 @@ const getUserData = async () => {
 const updateUserData = async () => {
   // Отправляется только email. при желании можно и другие данные модифицировать
   await store.dispatch("user/updateUserData", { email: emailFormInput.value });
-  getUserData();
+  await fetchUserData();
 };
+
+const fetchUserData = async () => {
+  await store.dispatch("user/getUserData");
+  await displayUserData();
+};
+
+onBeforeMount(async () => {
+  await displayUserData();
+});
 </script>
 
 <template>
-  <div v-if="userData !== undefined">
+  <div v-if="store.getters['user/token']">
     Loged in!
     <button
       type="button"
       class="inline-block px-6 py-2.5 bg-green-500 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-green-600 hover:shadow-lg focus:bg-green-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-green-700 active:shadow-lg transition duration-150 ease-in-out"
-      @click="getUserData"
+      @click="fetchUserData"
     >
       fetch data
     </button>

@@ -1,4 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useStore } from "vuex";
+import { onBeforeMount } from "vue";
+
+const store = useStore();
+onBeforeMount(() => {
+  store.commit("LOAD_STORE");
+});
+</script>
 
 <template>
   <div class="links text-center mx-5">
